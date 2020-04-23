@@ -107,7 +107,7 @@ const canvas = {
 
 const image = document.createElement('img');
 
-image.src = `preset/${source}`;
+image.src = `public/preset/${source}`;
 
 function drawSlot(ctx, drawPath, offset) {
 	ctx.drawImage(image, 0, 0);

@@ -4,9 +4,9 @@ const Workbench = require('./Workbench');
 const store = global.store = [];
 
 module.exports = {
-	init() {
+	init(bufferSize) {
 		(async function watchStore() {
-			if (store.length > 200) {
+			if (store.length > bufferSize) {
 				return setTimeout(watchStore, 5000);
 			}
 

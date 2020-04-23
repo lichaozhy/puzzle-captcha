@@ -35,9 +35,11 @@ ipc.wss = new WebSocket.Server({
 
 function createWindow(source) {
 	const window = new BrowserWindow({
+		width: 0,
+		height: 0
 	});
 
-	window.loadFile(path.resolve('assets/index.html'), {
+	window.loadFile(path.resolve('index.html'), {
 		hash: `;${ipc.address.port};${source}`,
 	});
 
@@ -100,7 +102,7 @@ let wsResolver = null;
 
 module.exports = {
 	async bootstrap() {
-		fs.readdir(path.resolve('assets/preset')).then(async list => {
+		fs.readdir(path.resolve('public/preset')).then(async list => {
 			while(list.length) {
 				const source = list.pop();
 				const window = createWindow(source);

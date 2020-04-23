@@ -1,0 +1,9 @@
+{
+	"api": {
+		"port": 80
+	},
+	"captcha": {
+		"bufferSize": 4000,
+		"precision": 5
+	}
+}

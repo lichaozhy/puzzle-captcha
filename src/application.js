@@ -6,7 +6,7 @@ const repository = require('./repository');
 
 const CLEANING_INTERVAL = 10000;
 const VALID_TIME = 2 * 60 * 1000;
-const X_PRECISION = 5;
+const X_PRECISION = 4;
 
 const cache = {};
 
@@ -81,7 +81,7 @@ const Router = new KoaRouter({
 	}
 
 	return ctx.throw(404);
-}).get('/captcha/:hash/image.png', function respondCaptchaImage(ctx) {
+}).get('/captcha/:hash/image', function respondCaptchaImage(ctx) {
 	const captcha = cache[ctx.params.hash];
 
 	if (!captcha) {
