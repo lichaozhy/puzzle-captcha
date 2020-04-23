@@ -34,10 +34,7 @@ ipc.wss = new WebSocket.Server({
 });
 
 function createWindow(source) {
-	const window = new BrowserWindow({
-		width: 0,
-		height: 0
-	});
+	const window = new BrowserWindow({});
 
 	window.loadFile(path.resolve('index.html'), {
 		hash: `;${ipc.address.port};${source}`,

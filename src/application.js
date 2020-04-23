@@ -92,6 +92,14 @@ const Router = new KoaRouter({
 	ctx.body = captcha.product.image;
 });
 
+if (process.env.NODE_ENV === 'development') {
+	Router.get('/dev/:hash', function getX(ctx) {
+		ctx.body = {
+			x: ctx.state.captcha.product.x
+		};
+	});
+}
+
 module.exports = function createApplication(principalRegistry) {
 	const app = new Koa();
 
