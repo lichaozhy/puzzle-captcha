@@ -4,8 +4,8 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-		"test": "mocha",
-		"start": "electron ./",
+    "test": "mocha",
+    "start": "xvfb-maybe electron --no-sandbox --disable-gpu ./",
     "package:linux": "electron-builder build --linux"
   },
   "repository": {

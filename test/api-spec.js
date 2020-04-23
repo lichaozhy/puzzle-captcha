@@ -34,7 +34,7 @@ describe('PuzzleCaptchaAPI::', function () {
 
 	fs.copySync(examplePath, publicPath);
 
-	it('should be 401 without token for all APIs.', async function () {
+	it('should be 403 without token for all APIs.', async function () {
 		const badAgent = axios.create({
 			baseURL: 'http://127.0.0.1/api'
 		});
@@ -46,7 +46,7 @@ describe('PuzzleCaptchaAPI::', function () {
 			badAgent.get('/captcha/test/image')
 		].map(request => {
 			return request.catch(error => {
-				assert.equal(error.response.status, 401);
+				assert.equal(error.response.status, 403);
 			});
 		}));
 	});
@@ -59,7 +59,7 @@ describe('PuzzleCaptchaAPI::', function () {
 
 			assert.equal(res.status, 200);
 			assert(res.data.y);
-			assert(res.data.token);
+			assert(res.data.hash);
 		});
 	});
 
@@ -69,7 +69,7 @@ describe('PuzzleCaptchaAPI::', function () {
 				params: { token }
 			});
 
-			this.hash = res.data.token;
+			this.hash = res.data.hash;
 		});
 
 		it('should 404 when request a captcha image if not existed.', async function () {
@@ -97,7 +97,7 @@ describe('PuzzleCaptchaAPI::', function () {
 				params: { token }
 			});
 
-			this.hash = res.data.token;
+			this.hash = res.data.hash;
 		});
 
 		it('should be 400 if query `x` can NOT to be a number.', async function () {
@@ -139,7 +139,7 @@ describe('PuzzleCaptchaAPI::', function () {
 				params: { token }
 			});
 
-			this.hash = res.data.token;
+			this.hash = res.data.hash;
 		});
 
 		it('should be 404 if the captcha specific by hash is NOT verified.', async function () {

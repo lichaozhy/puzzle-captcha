@@ -26,7 +26,7 @@ const Router = new KoaRouter({
 	const principal = ctx.principal[ctx.query.token];
 
 	if (!principal) {
-		return ctx.throw(401);
+		return ctx.throw(403);
 	}
 
 	return next();
@@ -54,7 +54,7 @@ const Router = new KoaRouter({
 	};
 
 	ctx.body = {
-		token: product.token,
+		hash: product.token,
 		y: product.y
 	};
 }).put('/captcha/:hash', function verifyCaptcha(ctx) {
