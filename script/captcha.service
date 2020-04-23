@@ -1,0 +1,13 @@
+[Unit]
+Description=ethereum-go Monitor Daemon
+After=network.target
+ 
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/puzzle-captcha
+ExecStart=/bin/sh /root/puzzle-captcha/script/start.sh
+Restart=always
+ 
+[Install]
+WantedBy=multi-user.target
