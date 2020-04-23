@@ -5,19 +5,22 @@ const store = global.store = [];
 
 module.exports = {
 	init() {
-		setInterval(async () => {
-			if (store.length > 5) {
-				return;
+		(async function watchStore() {
+			if (store.length > 10000) {
+				console.log(store.length);
+				return setTimeout(watchStore, 5000);
 			}
 
 			const workbench = Workbench.get();
 
 			if (workbench === null) {
-				return;
+				return setImmediate(watchStore);
 			}
 
 			global.workbench = workbench;
-			store.push(await workbench.getProduct());
-		}, 1000);
+			workbench.getProduct().then(captcha => store.push(captcha));
+
+			watchStore();
+		}());
 	}
 };

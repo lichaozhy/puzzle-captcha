@@ -34,7 +34,8 @@ ipc.wss = new WebSocket.Server({
 });
 
 function createWindow(source) {
-	const window = new BrowserWindow();
+	const window = new BrowserWindow({
+	});
 
 	window.loadFile(path.resolve('assets/index.html'), {
 		hash: `;${ipc.address.port};${source}`,
@@ -87,8 +88,6 @@ class Workbench {
 
 			setTimeout(() => reject(new Error('No response.')), 5000);
 		}).then(image => {
-			console.log(image.length);
-
 			return { token, image, x, y };
 		}).finally(() => {
 			this.reciever = null;

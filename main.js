@@ -6,5 +6,5 @@ const repository = require('./src/repository')
 
 app.whenReady().then(async function () {
 	await Workbench.bootstrap();
-	repository.init();
+	setTimeout(() => repository.init(), 1000);
 });
