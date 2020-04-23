@@ -3,7 +3,7 @@ Puzzle-captcha
 
 这是一个独立运行的高性能“拼图行为验证码”服务。
 
-## Server
+## 环境
 
 由于使用了Electron，所以需要在非桌面环境下安装虚拟显示服务，包括Xvfb和有关图形的动态链接库。
 
@@ -18,7 +18,7 @@ $ yum install Xvfb pango.x86_64 libXcomposite.x86_64 libXcursor.x86_64 libXdamag
 + npm start
 ```
 
-### Configuration
+### 服务配置
 
 从``/example``复制，创建``/public``：
 ```bash
@@ -39,8 +39,7 @@ cp ./example ./public -a
 └── principal.json # Access Token配置
 ```
 
-``/public/config.json`` - 服务配置文件，
-
+#### ``/public/config.json`` - 服务配置文件，
 
 ```json
 {
@@ -58,13 +57,18 @@ cp ./example ./public -a
 * captcha.bufferSize - 验证码成品缓冲队列长度，建议 4000 - 25000
 * captcha.precision - 验证横坐标数值的允许误差（px）(``abs(actual - expected) < captcha.precision``)
 
-``/public/principal.json`` - 账户配置文件，
+#### ``/public/principal.json`` - 账户配置文件，
 ```json
 {
 	"4a20158f9cf975793d457ccb5a5ea6f30aa7f30caaa1f6771bf656506d584fe7": {}
 }
 ```
-目前根据需求随意增加新条目即可
+目前根据需求随意增加新条目即可。
+
+
+#### ``/public/preset/*.png`` - 验证码生成素材
+
+该服务将为每一个原始图片素材创建一个专用的图形处理进程。可以任意增加原始图片，图片规格260x160
 
 ## Client
 
@@ -80,7 +84,7 @@ cp ./example ./public -a
 
 * 描述 - 创建一个验证码
 * 响应
-	- 200 - 获取新创建的验证码
+	- 200 - 获取新创建的验证码，Content-Type: application/json
 		```json
 		{
 			"hash": "d462f80d96707e3e8bc637a3ffa74efc933fa6ec222a03b4cb6352827c390615",
@@ -89,22 +93,23 @@ cp ./example ./public -a
 		```
 		hash - 验证码的hash；y - 用于各个平台前端渲染时的Y轴偏移
 	- 429 - 当前缓冲队列没有可用的验证码资源
-	
+
 
 #### GET /api/captcha/{:hash}/image?token=&lt;AccessToken>
 
 * 描述 - 获取指定hash验证码的图片资源，``hash``来自于``POST /api/captcha``接口
 * 响应
 	- 200 包含“槽”和“块”内容的合并图片，Content-Type: image/png
+		![example](assets/response.png)
 	- 404 根据hash找不到验证码
 
 #### PUT /api/captcha/{:hash}/image?token=&lt;AccessToken>&x=&lt;offsetX>
 
 * 描述 - 验证由hash指定的验证码答案，x就是答案，必须是一个整型数
 * 响应
-	- 200 - 验证的结果正确
-	- 400 - 所提供的x无法被视作合法的整型数
-	- 416 - 所提供的x值超出误差范围
+	- 200 - 验证的结果正确（响应Payload可以忽略）
+	- 400 - 所提供的x无法被视作合法的整型数（响应Payload可以忽略）
+	- 416 - 所提供的x值超出误差范围（响应Payload可以忽略）
 
 ### Application Backend
 
@@ -114,5 +119,5 @@ cp ./example ./public -a
 
 * 描述 - 查询由hash指定的验证码是否被成功验证
 * 响应
-	- 200 - 已经验证成功
-	- 404 - 该验证码不存在或尚未验证成功
+	- 200 - 已经验证成功（响应Payload可以忽略）
+	- 404 - 该验证码不存在或尚未验证成功（响应Payload可以忽略）
