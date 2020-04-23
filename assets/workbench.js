@@ -166,7 +166,7 @@ window.addEventListener('load', function () {
 			whole.ctx.drawImage(slot.element, 0, 0);
 			whole.ctx.drawImage(block.element, SLOT_WIDTH, 0);
 
-			whole.element.toBlob(blob => ws.send(blob), 'image/webp');
+			whole.element.toBlob(blob => ws.send(blob), 'image/png');
 		}
 	};
 
