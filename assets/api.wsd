@@ -1,0 +1,65 @@
+@startuml api
+actor User
+boundary Client
+participant CaptchaService
+participant ApplicatonService
+
+User -> Client: Trying to login to application
+activate User
+Client -> ApplicatonService: GET http://app.example.com/login
+activate Client
+activate ApplicatonService
+ApplicatonService -> ApplicatonService: Some pre-process about login
+ApplicatonService -> Client: 200 OK [text/html] Login GUI with captcha widget
+deactivate ApplicatonService
+User -> Client: Providing credential
+User -> Client: Trigger captcha widget
+deactivate User
+
+== Handle Captcha in Frontend ==
+
+Client -> CaptchaService: POST __**http://captcha.example.com/api/captcha?token=**__
+activate Client
+activate CaptchaService
+CaptchaService -> CaptchaService: Generate a PuzzleCaptcha
+note left: HASH Example:\n\n1d4736a20c4c66e8e5200b642b88bf57\n6d3b720a0666084ec605ed561ac6779f
+CaptchaService -> Client: 200 OK [application/json] { "hash": "1d47...779f", "y": 28 }
+Client -> CaptchaService: GET __**http://captcha.example.com/api/captcha/1d47...779f/image?token=**__
+CaptchaService -> Client: 200 OK [image/png] The captcha image with "slot" & "block"
+Client -> Client: Rendering captcha widget
+note right: NOTICE: \nEach kind of front end like iOS,\nAndroid & Web should make flexible\nimplementation with **image** & **y**.
+User -> Client: Test the captcha widget
+activate User
+Client -> CaptchaService: PUT __**http://captcha.example.com/api/captcha/1d47...779f?token=&x=**__
+CaptchaService ->x CaptchaService: Fail to verify "x"
+note left: ABS(actualX - expectedX) < captcha.precision
+CaptchaService ->x Client:	416 Range Not Satisfiable
+... Trying More Times ...
+Client -> CaptchaService: PUT http://captcha.example.com/api/captcha/1d47...779f?token=&x=
+CaptchaService -> CaptchaService: Verifing successfully
+note left: Executing ``captcha.verified = true``\nthen the backend can get the verified captcha
+CaptchaService -> Client:	200 OK
+deactivate Client
+deactivate CaptchaService
+User -> Client: Click login button
+deactivate User
+
+== Verify Captcha in Backend ==
+
+Client -> ApplicatonService: POST http://app.example.com/login
+activate ApplicatonService
+ApplicatonService -> ApplicatonService: Getting captcha hash
+ApplicatonService -> CaptchaService: GET __**http://captcha.example.com/api/captcha/1d47...779f?token=&x=**__
+activate ApplicatonService
+activate CaptchaService
+CaptchaService -> CaptchaService: Query the valid captcha by hash
+note left: 404 when:\n\n1.The captcha specific by hash is NOT existed.\n2.The captcha is existed but not verified.
+CaptchaService -> ApplicatonService: 200 OK If the captcha has been verified
+deactivate ApplicatonService
+deactivate CaptchaService
+ApplicatonService -> ApplicatonService: Authentication
+ApplicatonService -> Client: 200 OK
+deactivate ApplicatonService
+
+... Something about User & Application ...
+@enduml

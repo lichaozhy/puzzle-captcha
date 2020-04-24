@@ -100,6 +100,7 @@ cp ./example ./public -a
 * 描述 - 获取指定hash验证码的图片资源，``hash``来自于``POST /api/captcha``接口
 * 响应
 	- 200 包含“槽”和“块”内容的合并图片，Content-Type: image/png
+
 		![example](assets/response.png)
 	- 404 根据hash找不到验证码
 
@@ -121,3 +122,15 @@ cp ./example ./public -a
 * 响应
 	- 200 - 已经验证成功（响应Payload可以忽略）
 	- 404 - 该验证码不存在或尚未验证成功（响应Payload可以忽略）
+
+## 通讯时序
+
+以下给出通讯时序图以帮助理解
+
+![示意图](assets/api.png)
+
+## 尺寸关系
+
+为了帮助各平台前端尽快理解如何处理验证图像，以下给出上述例子的尺寸示意
+
+![示意图](assets/sketch.png)
