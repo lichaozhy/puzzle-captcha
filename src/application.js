@@ -22,14 +22,6 @@ setInterval(function cleaner() {
 
 const Router = new KoaRouter({
 	prefix: '/api'
-}).use(function (ctx, next) {
-	const principal = ctx.principal[ctx.query.token];
-
-	if (!principal) {
-		return ctx.throw(403);
-	}
-
-	return next();
 }).param('hash', (hash, ctx, next) => {
 	const captcha = cache[hash];
 
@@ -41,6 +33,12 @@ const Router = new KoaRouter({
 
 	return next();
 }).post('/captcha', function createCaptcha(ctx) {
+	const principal = ctx.principal[ctx.query.token];
+
+	if (!principal) {
+		return ctx.throw(403);
+	}
+
 	const product = repository.fetch();
 
 	if (product === null) {

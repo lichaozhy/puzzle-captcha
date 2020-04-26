@@ -25,47 +25,72 @@ const ipc = {
 	address: null
 };
 
+const wsMap = {};
+
 ipc.wss = new WebSocket.Server({
 	server: ipc.server,
 	perMessageDeflate: false
 }).on('connection', function connection(ws) {
-	wsResolver(ws);
-	wsResolver = null;
+	ws.once('message', data => {
+		wsMap[data](ws);
+		delete wsMap[data];
+	});
 });
 
-function createWindow(source) {
-	const window = new BrowserWindow({});
-
-	window.loadFile(path.resolve('index.html'), {
-		hash: `;${ipc.address.port};${source}`,
-	});
-
-	return window;
-}
-
 class Workbench {
-	constructor(source, window, ws) {
-		this.window = window;
-		this.ws = ws;
+	constructor(source) {
+		this.window = new BrowserWindow({
+			width: 580,
+			height: 420
+		});
+		this.ws = null;
 		this.source = source;
+		this.work = 0;
 
 		this.reciever = null;
 
-		ws.on('message', data => {
+		this.reload();
+	}
+
+	setBusy() {
+		const readyList = workbenchRegistry.ready;
+
+		readyList.splice(readyList.indexOf(this), 1);
+	}
+
+	setReady() {
+		workbenchRegistry.ready.push(this);
+	}
+
+	async reload() {
+		if (this.ws !== null) {
+			this.ws.close();
+		}
+
+		this.window.loadFile(path.resolve('index.html'), {
+			hash: `;${ipc.address.port};${this.source}`,
+		});
+
+		const ws = await new Promise(resolve => {
+			wsMap[this.source] = resolve;
+		});
+
+		this.ws = ws.on('message', data => {
 			if (this.reciever !== null) {
 				this.reciever(data);
 			}
 		});
+
+		this.work = 0;
+		this.setReady();
 	}
 
 	async getProduct() {
-		const readyList = workbenchRegistry.ready;
-
-		readyList.splice(readyList.indexOf(this), 1);
-
 		if (this.reciever !== null) {
 			throw new Error('Workbench is busy.');
 		}
+
+		this.setBusy();
 
 		const x = randInt(16, 190);
 		const y = randInt(16, 90);
@@ -75,6 +100,7 @@ class Workbench {
 		sha256.update(`${x}-${y}-${Date.now()}-${randInt(100000, 999999)}`);
 
 		const token = sha256.digest('hex');
+		let timer = null;
 
 		return new Promise((resolve, reject) => {
 			const command = {
@@ -85,33 +111,35 @@ class Workbench {
 			this.reciever = resolve;
 			this.ws.send(JSON.stringify(command));
 
-			setTimeout(() => reject(new Error('No response.')), 5000);
+			timer = setTimeout(() => {
+				reject(new Error('No response.'));
+				console.log(this.source);
+			}, 1000);
 		}).then(image => {
+			clearTimeout(timer);
+
 			return { token, image, x, y };
 		}).finally(() => {
 			this.reciever = null;
-			readyList.push(this);
+			this.work++;
+
+			if (this.work > 100) {
+				this.reload();
+			} else {
+				this.setReady();
+			}
 		});
 	}
 }
-
-let wsResolver = null;
 
 module.exports = {
 	async bootstrap() {
 		fs.readdir(path.resolve('public/preset')).then(async list => {
 			while(list.length) {
 				const source = list.pop();
-				const window = createWindow(source);
-
-				const ws = await new Promise(resolve => {
-					wsResolver = resolve;
-				});
-
-				const workbench = new Workbench(source, window, ws);
+				const workbench = new Workbench(source);
 
 				workbenchRegistry.all[source] = workbench;
-				workbenchRegistry.ready.push(workbench);
 			}
 		});
 	},

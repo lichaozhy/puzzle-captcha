@@ -96,8 +96,7 @@ function createCanvasHelper(width, height) {
 	};
 }
 
-const [_, port, source] = document.location.hash.split(';');
-const ws = new WebSocket(`ws://127.0.0.1:${port}`);
+const [, port, source] = document.location.hash.split(';');
 
 const canvas = {
 	slot: createCanvasHelper(SLOT_WIDTH, SLOT_HEIGHT),
@@ -147,6 +146,10 @@ function drawBlock(ctx, drawPath, offset) {
 }
 
 window.addEventListener('load', function () {
+	const ws = new WebSocket(`ws://127.0.0.1:${port}`);
+
+	ws.addEventListener('open', () => ws.send(source));
+
 	document.body.appendChild(image);
 	document.body.appendChild(canvas.slot.element);
 	document.body.appendChild(canvas.block.element);
@@ -154,7 +157,6 @@ window.addEventListener('load', function () {
 
 	const commandMap = window.a = {
 		fetch(offset) {
-			console.log(offset);
 			const { block, slot, whole } = canvas;
 
 			const drawPath = PuzzleBlockPath();

@@ -7,7 +7,7 @@ module.exports = {
 	init(bufferSize) {
 		(async function watchStore() {
 			if (store.length > bufferSize) {
-				return setTimeout(watchStore, 5000);
+				return setTimeout(watchStore, 1000);
 			}
 
 			const workbench = Workbench.get();
