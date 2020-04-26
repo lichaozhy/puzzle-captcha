@@ -34,24 +34,19 @@ describe('PuzzleCaptchaAPI::', function () {
 
 	fs.copySync(examplePath, publicPath);
 
-	it('should be 403 without token for all APIs.', async function () {
-		const badAgent = axios.create({
-			baseURL: 'http://127.0.0.1/api'
+	describe('CreateCaptcha::', function () {
+		it('should be 403 without token.', async function () {
+			const badAgent = axios.create({
+				baseURL: 'http://127.0.0.1/api'
+			});
+
+			try {
+				await badAgent.post('/captcha');
+			} catch (error) {
+				assert.equal(error.response.status, 403);
+			}
 		});
 
-		await Promise.all([
-			badAgent.post('/captcha'),
-			badAgent.put('/captcha/test'),
-			badAgent.get('/captcha/test'),
-			badAgent.get('/captcha/test/image')
-		].map(request => {
-			return request.catch(error => {
-				assert.equal(error.response.status, 403);
-			});
-		}));
-	});
-
-	describe('CreateCaptcha::', function () {
 		it('should get a captcha successfully', async function () {
 			const res = await agent.post('/captcha', null, {
 				params: { token }
